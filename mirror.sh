@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 
 readonly tmpdir=/tmp/foo
+readonly history=/tmp/.mig
+
+init() {
+  local source="$1"
+
+  mkdir -p "$tmpdir" && cd "$tmpdir"
+  clone "$source"
+  list_branches | tee "$history"
+}
+
+list_branches() {
+  git branch -v --no-abbrev | sed -e 's/*//g' | awk '{print $1"="$2}'
+}
 
 clone() {
   local source="$1"
@@ -8,11 +21,6 @@ clone() {
   git clone --bare "$source" .git
   git config --unset core.bare
   git reset --hard
-}
-
-mirror() {
-  local target="$1"
-  git push --mirror "$target"
 }
 
 add_file() {
@@ -23,11 +31,10 @@ add_file() {
 }
 
 push() {
-  local target="$1"
-  git push "$target"
+  git push "$@"
 }
 
-main() {
+mirror() {
   local source=${@:1:1}
   local target=${@:2:1}
 
@@ -36,11 +43,11 @@ main() {
   echo "mirroring $source to $target"
 
   clone "$source"
-  mirror "$target"
+  push --mirror "$target"
 
   add_file https://raw.githubusercontent.com/jw3/openshift-kinesalite/master/template.yml 'a file from another repo'
   push "$target"
 }
 
-main "$@"
+"$@"
 
