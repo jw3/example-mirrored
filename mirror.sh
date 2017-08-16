@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
+readonly tmpdir=/tmp/foo
+
 clone() {
   local source="$1"
+
   git clone --bare "$source" .git
   git config --unset core.bare
   git reset --hard
@@ -25,13 +28,18 @@ push() {
 }
 
 main() {
-  cd /tmp && mkdir foo
-  clone "$@"
-  mirror "$@"
+  local source=${@:1:1}
+  local target=${@:2:1}
 
-  add_file https://raw.githubusercontent.com/jw3/openshift-kinesalite/master/template.yml 'a file from another repo'
+  mkdir -p "$tmpdir" && cd "$tmpdir"
 
-  cd /tmp && rm -rf foo
+  echo "mirroring $source to $target"
+
+  clone "$source"
+  mirror "$target"
+
+#  add_file https://raw.githubusercontent.com/jw3/openshift-kinesalite/master/template.yml 'a file from another repo'
 }
 
 main "$@"
+
