@@ -22,6 +22,10 @@ At this point, if the project is configured properly for CI, a build should be k
 - doesnt push unchanged branches
 - deletes branches
 
+### to verify
+- do builds for all branches get kicked off automatically
+  - if so how do you limit them, dont want 20 branches building on a mirror that has 0-1 updates
+
 ### notes
 - target only branches are deleted when mirror push occurs (makes sense)
 - target repo cannot have protected branches
