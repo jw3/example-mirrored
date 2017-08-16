@@ -10,10 +10,13 @@ Mirroring repos from GitHub to GitLab
 ### verified
 - pulls new branches
 - doesnt push unchanged branches
+- deletes branches
 
 ### unverified
-- deletes branches
 - works around target only branches
+
+### notes
+- target repo cannot have protected branches
 
 ### references
 - https://git.wiki.kernel.org/index.php/Git_FAQ#How_do_I_clone_a_repository_with_all_remotely_tracked_branches.3F
