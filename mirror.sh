@@ -18,7 +18,7 @@ mirror() {
 add_file() {
   local uri="$1"
   local name="${2:-file}"
-  curl -O "$uri"
+  curl -sRO "$uri"
   git add . && git commit -m "adding $name"
 }
 
@@ -38,7 +38,8 @@ main() {
   clone "$source"
   mirror "$target"
 
-#  add_file https://raw.githubusercontent.com/jw3/openshift-kinesalite/master/template.yml 'a file from another repo'
+  add_file https://raw.githubusercontent.com/jw3/openshift-kinesalite/master/template.yml 'a file from another repo'
+  push "$target"
 }
 
 main "$@"
