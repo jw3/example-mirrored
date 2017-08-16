@@ -35,6 +35,7 @@ At this point, if the project is configured properly for CI, a build should be k
 ### references
 - https://git.wiki.kernel.org/index.php/Git_FAQ#How_do_I_clone_a_repository_with_all_remotely_tracked_branches.3F
 - https://stackoverflow.com/questions/6865302/push-local-git-repo-to-new-remote-including-all-branches-and-tags
+- https://github.com/samrocketman/gitlab-mirrors
 
 ## Goals
 
