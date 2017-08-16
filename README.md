@@ -1,21 +1,29 @@
 Mirroring repos from GitHub to GitLab
 ===
 
-### one way
+### mirroring
 1. `git clone --bare https://github.com/jw3/example-mirrored.git .git`
 2. `git config --unset core.bare`
 3. `git reset --hard`
 4. `git push --mirror https://user:token@gitlab.corp/jw3/example-mirrored-github-repo.git`
 
-### verified
+### topping off with additional files
+
+Since it does not appear that you can keep source only branches, will have to bring in files from elsewhere.
+
+1. `curl -O https://gitlab.corp/jw3/example-mirrored-github-repo-ci-config/raw/master/.gitlab-ci.yml`
+2. `git add . && git commit -m 'add gitlab ci config'`
+3. `git push https://user:token@gitlab.corp/jw3/example-mirrored-github-repo.git`
+
+At this point, if the project is configured properly for CI, a build should be kicked off.
+
+### verified mirroring
 - pulls new branches
 - doesnt push unchanged branches
 - deletes branches
 
-### unverified
-- works around target only branches
-
 ### notes
+- target only branches are deleted when mirror push occurs (makes sense)
 - target repo cannot have protected branches
 
 ### references
