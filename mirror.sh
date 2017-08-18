@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-readonly tmpdir=/tmp/foo
-readonly history=/tmp/.mig
+readonly tnow=$(date +%s)
+readonly tmpdir="/tmp/mig-$tnow"
+readonly history="$HOME/.mig"
 
 init() {
   local source="$1"
