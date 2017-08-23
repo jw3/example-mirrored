@@ -65,6 +65,7 @@ mirror() {
 
   for b in $(list_changed_branches); do
     git checkout "$b"
+    add_file https://raw.githubusercontent.com/jw3/example-mirrored-cicfg/master/Dockerfile 'dockerfile'
     add_file https://raw.githubusercontent.com/jw3/example-mirrored-cicfg/master/.gitlab-ci.yml 'ci config'
     push "$target"
   done
