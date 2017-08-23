@@ -30,7 +30,7 @@ compare_branch() {
   local name="$1"
   local hash="$2"
 
-  if [[ "$hash" != "${!name}" ]]; then echo "$name"; fi
+  if [[ -v "$name" && "$hash" != "${!name}" ]]; then echo "$name"; fi
 }
 
 clone() {
