@@ -9,18 +9,18 @@ init() {
 
   mkdir -p "$tmpdir" && cd "$tmpdir"
   clone "$source"
-  list_branches | tee "$history"
+  list_branches | awk '{"echo " $1 " | base64 | sed -e s#=#_#g" | getline x; print x"="$2}' | tee "$history"
 }
 
 list_branches() {
-  git branch -v --no-abbrev | sed -e 's/*//g' | awk '{print $1"="$2}'
+  git branch -v --no-abbrev | sed -e 's/*//g'
 }
 
 list_changed_branches() {
   cd "$tmpdir"
   source "$history"
 
-  for b in $(list_branches); do
+  for b in $(list_branches | awk '{print $1"="$2}'); do
     IFS='=' read -ra B <<< "$b"
     compare_branch "${B[@]}"
   done
@@ -30,7 +30,9 @@ compare_branch() {
   local name="$1"
   local hash="$2"
 
-  if [[ -v "$name" && "$hash" != "${!name}" ]]; then echo "$name"; fi
+  local ename=$(echo "$name" | base64 | sed -e 's#=#_#g')
+
+  if [[ -v "$ename" && "$hash" != "${!ename}" ]]; then echo "$ename" | sed -e 's#_#=#g'; fi
 }
 
 clone() {
