@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-readonly tnow=$(date +%s)
-readonly tmpdir="/tmp/mig-$tnow"
-readonly history="$HOME/.mig"
+readonly t=$(date +%s)
+readonly tmp="${MIG_TMP:-/tmp/mig-$t}"
+readonly mig="$HOME/.mig"
 
 init() {
   local source="$1"
 
-  mkdir -p "$tmpdir" && cd "$tmpdir"
-  clone "$source"
-  list_branches | awk '{"echo " $1 " | base64 | sed -e s#=#_#g" | getline x; print x"="$2}' | tee "$history"
+  mkdir -p "$tmp" && cd "$tmp"
+  if [[ -z ${MIG_TMP} ]]; then clone "$source"; fi
+  list_branches | awk '{"echo " $1 " | base64 | sed -e s#=#_#g" | getline x; print x "=" $2 " #" $1}' | tee "$mig"
 }
 
 list_branches() {
@@ -17,8 +17,8 @@ list_branches() {
 }
 
 list_changed_branches() {
-  cd "$tmpdir"
-  source "$history"
+  cd "$tmp"
+  source "$mig"
 
   for b in $(list_branches | awk '{print $1"="$2}'); do
     IFS='=' read -ra B <<< "$b"
@@ -58,7 +58,7 @@ mirror() {
   local source=${@:1:1}
   local target=${@:2:1}
 
-  mkdir -p "$tmpdir" && cd "$tmpdir"
+  mkdir -p "$tmp" && cd "$tmp"
 
   echo "mirroring $source to $target"
 
