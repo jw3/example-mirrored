@@ -3,6 +3,10 @@
 readonly t=$(date +%s)
 readonly tmp="${MIG_TMP:-/tmp/mig-$t}"
 readonly mig="$HOME/.mig"
+readonly log="/tmp/mig-$t.log"
+
+export http_proxy=http://server41.ctc.com:3128
+export https_proxy=http://server41.ctc.com:3128
 
 init() {
   local source="$1"
@@ -51,7 +55,7 @@ add_file() {
 }
 
 push() {
-  git push "$@"
+  git push "$@" >> "$log"
 }
 
 mirror() {
@@ -65,12 +69,21 @@ mirror() {
   clone "$source"
   push --mirror "$target"
 
-  for b in $(list_changed_branches); do
-    git checkout "$b"
-    add_file https://raw.githubusercontent.com/jw3/example-mirrored-cicfg/master/Dockerfile 'dockerfile'
-    add_file https://raw.githubusercontent.com/jw3/example-mirrored-cicfg/master/.gitlab-ci.yml 'ci config'
-    push "$target"
+  rm /tmp/.mig
+
+  for eb in $(list_changed_branches); do
+    db=$(echo "$eb" | base64 -d)
+    rev=$(git rev-parse HEAD)
+
+    git checkout "$db"
+    add_file https://raw.githubusercontent.com/jw3/pdal-gitlab-ci/master/Dockerfile 'dockerfile'
+    add_file https://raw.githubusercontent.com/jw3/pdal-gitlab-ci/master/.gitlab-ci.yml 'ci config'
+    push "$target" >> "$log"
+
+    echo "$eb" | sed -e s#=#_#g | xargs -I{} echo "{}=$rev #$db" | tee -a /tmp/.mig
   done
+
+  mv /tmp/.mig ${mig}
 }
 
 "$@"
