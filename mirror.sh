@@ -67,23 +67,29 @@ mirror() {
   echo "mirroring $source to $target"
 
   clone "$source"
-  push --mirror "$target"
+  local changed=$(list_changed_branches)
 
-  rm /tmp/.mig
+  if [ ! -z "$changed" ]; then  
+    echo "detected changes"
+    echo "$changed"
 
-  for eb in $(list_changed_branches); do
-    db=$(echo "$eb" | base64 -d)
-    rev=$(git rev-parse HEAD)
+    push --mirror "$target"
+    rm /tmp/.mig
 
-    git checkout "$db"
-    add_file https://raw.githubusercontent.com/jw3/pdal-gitlab-ci/master/Dockerfile 'dockerfile'
-    add_file https://raw.githubusercontent.com/jw3/pdal-gitlab-ci/master/.gitlab-ci.yml 'ci config'
-    push "$target" >> "$log"
+    for eb in "$changed"; do
+      db=$(echo "$eb" | base64 -d)
+      rev=$(git rev-parse HEAD)
 
-    echo "$eb" | sed -e s#=#_#g | xargs -I{} echo "{}=$rev #$db" | tee -a /tmp/.mig
-  done
+      git checkout "$db"
+      add_file https://raw.githubusercontent.com/jw3/pdal-gitlab-ci/master/Dockerfile 'dockerfile'
+      add_file https://raw.githubusercontent.com/jw3/pdal-gitlab-ci/master/.gitlab-ci.yml 'ci config'
+      push "$target" >> "$log"
 
-  mv /tmp/.mig ${mig}
+      echo "$eb" | sed -e s#=#_#g | xargs -I{} echo "{}=$rev #$db" | tee -a /tmp/.mig
+    done
+
+    mv /tmp/.mig ${mig}
+  fi
 }
 
 "$@"
